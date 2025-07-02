@@ -104,7 +104,20 @@ C:\Users\{YourUsername}\AppData\Roaming\Claude\claude_desktop_config.json
 
 ### Configuration Options
 
-#### Option 1: Using Batch Script (Recommended)
+#### Option 1: Using MCP-Compliant Script (Recommended)
+
+```json
+{
+  "mcpServers": {
+    "immanuel-astrology": {
+      "command": "C:\\path\\to\\immanuel-mcp-server\\start_server_mcp.bat",
+      "cwd": "C:\\path\\to\\immanuel-mcp-server"
+    }
+  }
+}
+```
+
+#### Option 2: Using Regular Batch Script (Development)
 
 ```json
 {

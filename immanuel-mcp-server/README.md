@@ -70,9 +70,10 @@ A high-performance Python MCP (Model Context Protocol) server for the `theriftla
 For Windows users, we provide additional scripts and documentation:
 
 1. **Quick verification**: Run `scripts\verify_windows_install.bat` to check your setup
-2. **Easy startup**: Use `start_server.bat` to start the server with automatic environment handling
-3. **Detailed guide**: See [Windows Setup Guide](docs/windows_setup.md) for complete instructions
-4. **PowerShell support**: Use `start_server.ps1` for PowerShell users
+2. **MCP Integration**: Use `start_server_mcp.bat` for Claude Desktop (silent, JSON-RPC only)
+3. **Development**: Use `start_server.bat` for interactive development with console output
+4. **Detailed guide**: See [Windows Setup Guide](docs/windows_setup.md) for complete instructions
+5. **PowerShell support**: Use `start_server.ps1` for PowerShell users
 
 ## MCP Integration
 
@@ -96,13 +97,12 @@ Add the following to your Claude Desktop configuration:
 
 #### For Windows
 
-**Option 1: Using Batch Script (Recommended)**
+**Option 1: Using MCP-Compliant Script (Recommended)**
 ```json
 {
   "mcpServers": {
     "immanuel-astrology": {
-      "command": "C:\\path\\to\\immanuel-mcp-server\\start_server.bat",
-      "args": ["--no-pause"],
+      "command": "C:\\path\\to\\immanuel-mcp-server\\start_server_mcp.bat",
       "cwd": "C:\\path\\to\\immanuel-mcp-server"
     }
   }
@@ -341,9 +341,14 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ### Windows Issues
 
 **"uvicorn is not recognized"**
-- Use the batch script: `start_server.bat`
+- Use the MCP script: `start_server_mcp.bat`
 - Or use full path: `C:\path\to\.venv\Scripts\uvicorn.exe`
 - Or use Python module: `python -m uvicorn app.main:app`
+
+**"Unexpected token" or JSON parsing errors**
+- Use `start_server_mcp.bat` instead of `start_server.bat` for Claude Desktop
+- The MCP script provides silent operation (JSON-RPC only)
+- Regular batch script outputs text that confuses Claude Desktop
 
 **Claude Desktop connection fails**
 - Verify paths in configuration use double backslashes: `C:\\path\\to\\project`

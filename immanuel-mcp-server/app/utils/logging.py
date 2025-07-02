@@ -7,6 +7,8 @@ and searchable log output across the application.
 
 import logging
 import sys
+import os
+from pathlib import Path
 from typing import Any, Dict
 
 import structlog
@@ -42,6 +44,14 @@ def filter_sensitive_data(logger: Any, method_name: str, event_dict: EventDict) 
 def configure_logging(log_level: str = "INFO", is_development: bool = True) -> None:
     """Configure structured logging for the application."""
     
+    # Check if running in MCP mode
+    mcp_mode = os.getenv("MCP_MODE", "false").lower() == "true"
+    
+    if mcp_mode:
+        # MCP mode: File-only logging, no console output
+        configure_mcp_logging(log_level)
+        return
+    
     # Configure stdlib logging
     logging.basicConfig(
         format="%(message)s",
@@ -73,6 +83,48 @@ def configure_logging(log_level: str = "INFO", is_development: bool = True) -> N
         ])
     
     # Configure structlog
+    structlog.configure(
+        processors=processors,
+        logger_factory=structlog.stdlib.LoggerFactory(),
+        wrapper_class=structlog.stdlib.BoundLogger,
+        cache_logger_on_first_use=True,
+    )
+
+
+def configure_mcp_logging(log_level: str = "INFO") -> None:
+    """Configure logging specifically for MCP mode (file-only, no console output)."""
+    
+    # Ensure logs directory exists
+    logs_dir = Path("logs")
+    logs_dir.mkdir(exist_ok=True)
+    
+    # Set up file logging only
+    log_file = logs_dir / "mcp_server.log"
+    
+    # Configure stdlib logging to file only
+    logging.basicConfig(
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[
+            logging.FileHandler(log_file, mode='a', encoding='utf-8')
+        ],
+        level=getattr(logging, log_level.upper()),
+        force=True  # Override any existing configuration
+    )
+    
+    # Define processors for file output (no colors, structured)
+    processors: list[Processor] = [
+        structlog.contextvars.merge_contextvars,
+        structlog.processors.add_log_level,
+        structlog.processors.StackInfoRenderer(),
+        add_correlation_id,
+        filter_sensitive_data,
+        # Always use JSON output for MCP mode (easier to parse in logs)
+        structlog.processors.dict_tracebacks,
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.JSONRenderer()
+    ]
+    
+    # Configure structlog for file-only output
     structlog.configure(
         processors=processors,
         logger_factory=structlog.stdlib.LoggerFactory(),

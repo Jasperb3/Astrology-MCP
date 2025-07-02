@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     environment: str = Field(default="development", env="ENVIRONMENT")
     debug: bool = Field(default=True, env="DEBUG")
     log_level: str = Field(default="INFO", env="LOG_LEVEL")
+    mcp_mode: bool = Field(default=False, env="MCP_MODE")
     
     # Server Configuration  
     host: str = Field(default="0.0.0.0", env="HOST")
@@ -74,6 +75,11 @@ class Settings(BaseSettings):
     def is_production(self) -> bool:
         """Check if running in production mode."""
         return self.environment.lower() == "production"
+    
+    @property
+    def is_mcp_mode(self) -> bool:
+        """Check if running in MCP mode (for Claude Desktop integration)."""
+        return self.mcp_mode
 
 
 @lru_cache()
