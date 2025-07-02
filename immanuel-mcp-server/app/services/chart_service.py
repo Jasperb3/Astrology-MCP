@@ -8,6 +8,7 @@ of astrological charts and performing calculations.
 from typing import Any, Dict, List, Optional, Union
 from datetime import datetime
 import json
+import re
 
 from app.config import get_settings
 from app.models.astrology import (
@@ -345,17 +346,27 @@ class ChartService:
         def parse_coordinate(coord: Union[str, float]) -> float:
             if isinstance(coord, (int, float)):
                 return float(coord)
-            
-            # Parse DMS format like "32n43" or "117w09"
+
             if isinstance(coord, str):
-                direction = coord[-1].lower()
-                value = float(coord[:-1])
-                
-                if direction in ['s', 'w']:
-                    value = -value
-                
-                return value
-            
+                coord_str = coord.strip().lower()
+
+                # Format like "32n43" or "117w09"
+                match = re.fullmatch(r"(\d+)([nswe])(\d+)", coord_str)
+                if match:
+                    degrees = float(match.group(1))
+                    direction = match.group(2)
+                    minutes = float(match.group(3))
+                    value = degrees + minutes / 60.0
+                    if direction in ["s", "w"]:
+                        value = -value
+                    return value
+
+                # Fall back to plain float string
+                try:
+                    return float(coord_str)
+                except ValueError:
+                    pass
+
             raise ValidationError(f"Invalid coordinate format: {coord}")
         
         return parse_coordinate(lat), parse_coordinate(lon)
