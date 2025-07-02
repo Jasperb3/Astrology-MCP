@@ -28,9 +28,18 @@ A high-performance Python MCP (Model Context Protocol) server for the `theriftla
    ```
 
 2. **Install dependencies using uv:**
+   
+   **Linux/macOS:**
    ```bash
    uv venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   source .venv/bin/activate
+   uv pip install -e .
+   ```
+   
+   **Windows:**
+   ```cmd
+   uv venv
+   .venv\Scripts\activate
    uv pip install -e .
    ```
 
@@ -41,13 +50,35 @@ A high-performance Python MCP (Model Context Protocol) server for the `theriftla
    ```
 
 4. **Run the server:**
+   
+   **Linux/macOS:**
    ```bash
    uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
    ```
+   
+   **Windows:**
+   ```cmd
+   # Option 1: Use the batch script
+   start_server.bat
+   
+   # Option 2: Direct command
+   .venv\Scripts\uvicorn.exe app.main:app --host 0.0.0.0 --port 8000 --reload
+   ```
+
+## Windows Quick Setup
+
+For Windows users, we provide additional scripts and documentation:
+
+1. **Quick verification**: Run `scripts\verify_windows_install.bat` to check your setup
+2. **Easy startup**: Use `start_server.bat` to start the server with automatic environment handling
+3. **Detailed guide**: See [Windows Setup Guide](docs/windows_setup.md) for complete instructions
+4. **PowerShell support**: Use `start_server.ps1` for PowerShell users
 
 ## MCP Integration
 
 ### Claude Desktop Configuration
+
+#### For Linux/macOS
 
 Add the following to your Claude Desktop configuration:
 
@@ -62,6 +93,49 @@ Add the following to your Claude Desktop configuration:
   }
 }
 ```
+
+#### For Windows
+
+**Option 1: Using Batch Script (Recommended)**
+```json
+{
+  "mcpServers": {
+    "immanuel-astrology": {
+      "command": "C:\\path\\to\\immanuel-mcp-server\\start_server.bat",
+      "args": ["--no-pause"],
+      "cwd": "C:\\path\\to\\immanuel-mcp-server"
+    }
+  }
+}
+```
+
+**Option 2: Using Full Path to uvicorn**
+```json
+{
+  "mcpServers": {
+    "immanuel-astrology": {
+      "command": "C:\\path\\to\\immanuel-mcp-server\\.venv\\Scripts\\uvicorn.exe",
+      "args": ["app.main:app", "--host", "127.0.0.1", "--port", "8000"],
+      "cwd": "C:\\path\\to\\immanuel-mcp-server"
+    }
+  }
+}
+```
+
+**Option 3: Using Python Module**
+```json
+{
+  "mcpServers": {
+    "immanuel-astrology": {
+      "command": "C:\\path\\to\\immanuel-mcp-server\\.venv\\Scripts\\python.exe",
+      "args": ["-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8000"],
+      "cwd": "C:\\path\\to\\immanuel-mcp-server"
+    }
+  }
+}
+```
+
+> **Windows Users**: Replace `C:\\path\\to\\immanuel-mcp-server` with your actual project path. See [Windows Setup Guide](docs/windows_setup.md) for detailed instructions.
 
 ### Available Tools
 
@@ -262,12 +336,47 @@ app/
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
+## Troubleshooting
+
+### Windows Issues
+
+**"uvicorn is not recognized"**
+- Use the batch script: `start_server.bat`
+- Or use full path: `C:\path\to\.venv\Scripts\uvicorn.exe`
+- Or use Python module: `python -m uvicorn app.main:app`
+
+**Claude Desktop connection fails**
+- Verify paths in configuration use double backslashes: `C:\\path\\to\\project`
+- Run verification: `scripts\verify_windows_install.bat`
+- Check Claude Desktop logs in `%APPDATA%\Claude\logs\`
+
+**Virtual environment issues**
+- Delete `.venv` and recreate: `uv venv && uv pip install -e .`
+- Ensure uv is installed: `pip install uv`
+
+See [Windows Setup Guide](docs/windows_setup.md) for detailed troubleshooting.
+
+### General Issues
+
+**Port already in use**
+- Change port in configuration
+- Kill existing process: `taskkill /f /im uvicorn.exe` (Windows) or `pkill uvicorn` (Linux/macOS)
+
+**Import errors**
+- Reinstall dependencies: `uv pip install -e .`
+- Check Python version: `python --version` (needs 3.11+)
+
+**Permission denied**
+- Run as administrator (Windows) or use `sudo` (Linux/macOS)
+- Check file permissions in project directory
+
 ## Support
 
 For issues and questions:
 - Create an issue on GitHub
 - Check the documentation
 - Review the test suite for usage examples
+- Windows users: See [Windows Setup Guide](docs/windows_setup.md)
 
 ## Acknowledgments
 
