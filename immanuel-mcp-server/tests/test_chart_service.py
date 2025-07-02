@@ -48,8 +48,8 @@ class TestChartService:
     def test_convert_coordinates_dms_format(self, chart_service: ChartService) -> None:
         """Test coordinate conversion from DMS format."""
         lat, lon = chart_service._convert_coordinates("32n43", "117w09")
-        assert lat == 32.43  # Approximate - depends on implementation
-        assert lon == -117.09
+        assert lat == pytest.approx(32 + 43 / 60.0)
+        assert lon == pytest.approx(-(117 + 9 / 60.0))
     
     def test_convert_coordinates_invalid_format(self, chart_service: ChartService) -> None:
         """Test coordinate conversion with invalid format."""
