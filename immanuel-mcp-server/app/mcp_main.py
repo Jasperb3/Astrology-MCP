@@ -44,11 +44,19 @@ def setup_mcp_logging() -> None:
     uvicorn_logger = logging.getLogger("uvicorn")
     uvicorn_logger.handlers = []
     uvicorn_logger.addHandler(logging.FileHandler(log_file))
-    
+    uvicorn_logger.propagate = False
+
     # Disable uvicorn access logs
     uvicorn_access = logging.getLogger("uvicorn.access")
     uvicorn_access.handlers = []
     uvicorn_access.addHandler(logging.FileHandler(log_file))
+    uvicorn_access.propagate = False
+
+    # Disable uvicorn error logs
+    uvicorn_error = logging.getLogger("uvicorn.error")
+    uvicorn_error.handlers = []
+    uvicorn_error.addHandler(logging.FileHandler(log_file))
+    uvicorn_error.propagate = False
 
 
 def main() -> None:
